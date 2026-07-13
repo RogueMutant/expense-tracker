@@ -20,56 +20,63 @@ function nairaTick(value) {
 }
 
 export function MonthlyBarChart({ data }) {
+  const minWidth = Math.max(data.length * 50, 280);
   return (
     <div className="chart-card">
       <h3>Monthly net</h3>
       <div className="chart-wrapper">
-        <ResponsiveContainer width={data.length * 60} height={220}>
-          <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-            <XAxis
-              dataKey="month"
-              tick={{ fill: "#8fa898", fontSize: 11, fontFamily: "Inter" }}
-              axisLine={{ stroke: "#2b5b47" }}
-              tickLine={false}
-            />
-            <YAxis
-              tickFormatter={nairaTick}
-              tick={{ fill: "#8fa898", fontSize: 11, fontFamily: "JetBrains Mono" }}
-              axisLine={false}
-              tickLine={false}
-              width={60}
-            />
-            <Tooltip
-              contentStyle={{
-                background: "#123f30",
-                border: "1px solid #2b5b47",
-                borderRadius: 6,
-                color: "#f5f1e8",
-                fontSize: 12,
-                fontFamily: "JetBrains Mono",
-              }}
-              formatter={(value) => [`\u20A6${Number(value).toLocaleString()}`, "Net"]}
-            />
-            <Bar
-              dataKey="net"
-              shape={(props) => {
-                const { x, y, width, height, fill } = props;
-                const isNeg = height < 0;
-                return (
-                  <rect
-                    x={x}
-                    y={isNeg ? y : y}
-                    width={width}
-                    height={Math.abs(height)}
-                    fill={isNeg ? "#c4432b" : "#2d7a4f"}
-                    rx={3}
-                    ry={3}
-                  />
-                );
-              }}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="chart-inner" style={{ minWidth }}>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={data} margin={{ top: 8, right: 4, bottom: 4, left: -12 }}>
+              <XAxis
+                dataKey="month"
+                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "Inter" }}
+                axisLine={{ stroke: "#2b5b47" }}
+                tickLine={false}
+                interval={0}
+                angle={data.length > 8 ? -30 : 0}
+                textAnchor={data.length > 8 ? "end" : "middle"}
+                height={data.length > 8 ? 50 : 30}
+              />
+              <YAxis
+                tickFormatter={nairaTick}
+                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "JetBrains Mono" }}
+                axisLine={false}
+                tickLine={false}
+                width={48}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "#123f30",
+                  border: "1px solid #2b5b47",
+                  borderRadius: 6,
+                  color: "#f5f1e8",
+                  fontSize: 12,
+                  fontFamily: "JetBrains Mono",
+                }}
+                formatter={(value) => [`\u20A6${Number(value).toLocaleString()}`, "Net"]}
+              />
+              <Bar
+                dataKey="net"
+                shape={(props) => {
+                  const { x, y, width, height, fill } = props;
+                  const isNeg = height < 0;
+                  return (
+                    <rect
+                      x={x}
+                      y={isNeg ? y : y}
+                      width={width}
+                      height={Math.abs(height)}
+                      fill={isNeg ? "#c4432b" : "#2d7a4f"}
+                      rx={2}
+                      ry={2}
+                    />
+                  );
+                }}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
@@ -87,49 +94,52 @@ export function CumulativeLineChart({ data }) {
     );
   }
 
-  const chartData = data.map((d) => ({ ...d, label: d.date }));
+  const minWidth = Math.max(data.length * 7, 280);
 
   return (
     <div className="chart-card">
       <h3>Cumulative balance</h3>
       <div className="chart-wrapper">
-        <ResponsiveContainer width={Math.max(data.length * 8, 300)} height={220}>
-          <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2b5b47" />
-            <XAxis
-              dataKey="date"
-              tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "Inter" }}
-              axisLine={{ stroke: "#2b5b47" }}
-              tickLine={false}
-            />
-            <YAxis
-              tickFormatter={nairaTick}
-              tick={{ fill: "#8fa898", fontSize: 11, fontFamily: "JetBrains Mono" }}
-              axisLine={false}
-              tickLine={false}
-              width={60}
-            />
-            <Tooltip
-              contentStyle={{
-                background: "#123f30",
-                border: "1px solid #2b5b47",
-                borderRadius: 6,
-                color: "#f5f1e8",
-                fontSize: 12,
-                fontFamily: "JetBrains Mono",
-              }}
-              formatter={(value) => [`\u20A6${Number(value).toLocaleString()}`, "Balance"]}
-            />
-            <Line
-              type="monotone"
-              dataKey="net"
-              stroke="#e8b84b"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: "#e8b84b" }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="chart-inner" style={{ minWidth }}>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={data} margin={{ top: 8, right: 4, bottom: 4, left: -12 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#2b5b47" />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "Inter" }}
+                axisLine={{ stroke: "#2b5b47" }}
+                tickLine={false}
+                interval={Math.max(Math.floor(data.length / 10), 0)}
+              />
+              <YAxis
+                tickFormatter={nairaTick}
+                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "JetBrains Mono" }}
+                axisLine={false}
+                tickLine={false}
+                width={48}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "#123f30",
+                  border: "1px solid #2b5b47",
+                  borderRadius: 6,
+                  color: "#f5f1e8",
+                  fontSize: 12,
+                  fontFamily: "JetBrains Mono",
+                }}
+                formatter={(value) => [`\u20A6${Number(value).toLocaleString()}`, "Balance"]}
+              />
+              <Line
+                type="monotone"
+                dataKey="net"
+                stroke="#e8b84b"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, fill: "#e8b84b" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
