@@ -76,9 +76,12 @@ export function useSlips() {
   }, []);
 
   const createSlip = useCallback(async (slip) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
     const result = await query("slips", (q) =>
       q
         .insert({
+          user_id: user.id,
           date: slip.date,
           stake: slip.stake,
           games_count: slip.games_count,

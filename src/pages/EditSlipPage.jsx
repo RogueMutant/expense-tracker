@@ -42,7 +42,7 @@ export default function EditSlipPage() {
     }
   };
 
-  if (loading) return <div className="loader" style={{ paddingTop: 60 }}>Loading\u2026</div>;
+  if (loading) return <div className="loader" style={{ paddingTop: 60 }}>Loading{"\u2026"}</div>;
   if (error) return <div className="card" style={{ borderColor: "var(--loss-bg)", color: "var(--loss-text)" }}>{error}</div>;
 
   return (

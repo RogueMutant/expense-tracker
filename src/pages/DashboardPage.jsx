@@ -68,7 +68,7 @@ export default function DashboardPage() {
       <MonthSummary summary={summary} />
 
       {loading ? (
-        <div className="loader">Loading\u2026</div>
+        <div className="loader">Loading{"\u2026"}</div>
       ) : (
         <SlipList slips={slips} isLocked={isLocked} />
       )}

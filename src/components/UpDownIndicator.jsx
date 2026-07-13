@@ -1,7 +1,7 @@
 export default function UpDownIndicator({ weeklyChange, monthlyChange, hitRate }) {
   const renderValue = (val) => {
     if (val === null || val === undefined)
-      return <span className="neutral">\u2014</span>;
+      return <span className="neutral">{"\u2014"}</span>;
     const isPos = val > 0;
     const isNeg = val < 0;
     const cls = isPos ? "positive" : isNeg ? "negative" : "neutral";
@@ -25,7 +25,7 @@ export default function UpDownIndicator({ weeklyChange, monthlyChange, hitRate }
           {hitRate !== null ? (
             <span className="neutral">{hitRate.toFixed(0)}%</span>
           ) : (
-            <span className="neutral">\u2014</span>
+            <span className="neutral">{"\u2014"}</span>
           )}
         </div>
       </div>

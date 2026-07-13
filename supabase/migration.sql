@@ -4,7 +4,7 @@
 -- 1. Slips table
 CREATE TABLE IF NOT EXISTS public.slips (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
   date DATE NOT NULL DEFAULT CURRENT_DATE,
   stake NUMERIC(12,2) NOT NULL CHECK (stake > 0),
   games_count INTEGER NOT NULL CHECK (games_count >= 1),
@@ -78,6 +78,9 @@ CREATE TRIGGER set_profiles_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_updated_at();
 
--- 8. Seed admin profile (run AFTER creating the user via Supabase Auth dashboard)
+-- 8. If migration was previously run without DEFAULT auth.uid(), apply this ALTER:
+-- ALTER TABLE public.slips ALTER COLUMN user_id SET DEFAULT auth.uid();
+
+-- 9. Seed admin profile (run AFTER creating the user via Supabase Auth dashboard)
 -- Replace the UUID below with the actual auth.users.id after creating the admin account.
 -- INSERT INTO public.profiles (id) VALUES ('<auth-users-id>');

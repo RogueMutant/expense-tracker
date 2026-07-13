@@ -26,7 +26,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading) return <div className="loader" style={{ paddingTop: 60 }}>Loading\u2026</div>;
+  if (loading) return <div className="loader" style={{ paddingTop: 60 }}>Loading{"\u2026"}</div>;
 
   return (
     <div className="settings-page">

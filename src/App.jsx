@@ -15,7 +15,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="login-page">
-        <div className="loader">Loading\u2026</div>
+        <div className="loader">Loading{"\u2026"}</div>
       </div>
     );
   }
