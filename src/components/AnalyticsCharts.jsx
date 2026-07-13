@@ -24,15 +24,15 @@ export function MonthlyBarChart({ data }) {
   const maxNet = Math.max(...data.map((d) => d.net), 0);
   const minNet = Math.min(...data.map((d) => d.net), 0);
   const range = maxNet - minNet || 1;
-  const yPad = range * 0.15;
+  const yPad = range * 0.3;
 
   return (
     <div className="chart-card">
       <h3>Monthly net</h3>
       <div className="chart-wrapper">
         <div className="chart-inner" style={{ minWidth }}>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={data} margin={{ top: 8, right: 4, bottom: 20, left: -12 }}>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data} margin={{ top: 8, right: 4, bottom: 30, left: -12 }}>
               <XAxis
                 dataKey="month"
                 tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "Inter" }}
@@ -45,10 +45,10 @@ export function MonthlyBarChart({ data }) {
               />
               <YAxis
                 tickFormatter={nairaTick}
-                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "JetBrains Mono" }}
+                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "Inter, sans-serif" }}
                 axisLine={false}
                 tickLine={false}
-                width={48}
+                width={50}
                 domain={[minNet - yPad, maxNet + yPad]}
               />
               <Tooltip
@@ -58,7 +58,7 @@ export function MonthlyBarChart({ data }) {
                   borderRadius: 6,
                   color: "#f5f1e8",
                   fontSize: 12,
-                  fontFamily: "JetBrains Mono",
+                  fontFamily: "Inter, sans-serif",
                 }}
                 formatter={(value) => [`\u20A6${Number(value).toLocaleString()}`, "Net"]}
               />
@@ -119,10 +119,10 @@ export function CumulativeLineChart({ data }) {
               />
               <YAxis
                 tickFormatter={nairaTick}
-                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "JetBrains Mono" }}
+                tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "Inter, sans-serif" }}
                 axisLine={false}
                 tickLine={false}
-                width={48}
+                width={50}
               />
               <Tooltip
                 contentStyle={{
@@ -131,7 +131,7 @@ export function CumulativeLineChart({ data }) {
                   borderRadius: 6,
                   color: "#f5f1e8",
                   fontSize: 12,
-                  fontFamily: "JetBrains Mono",
+                  fontFamily: "Inter, sans-serif",
                 }}
                 formatter={(value) => [`\u20A6${Number(value).toLocaleString()}`, "Balance"]}
               />

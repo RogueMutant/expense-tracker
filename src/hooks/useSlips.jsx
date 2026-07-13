@@ -276,12 +276,18 @@ export function useSlips() {
     return differenceInDays(new Date(), resolvedAt) > 7;
   }, []);
 
+  const deleteSlip = useCallback(async (id) => {
+    const { error } = await supabase.from("slips").delete().eq("id", id);
+    if (error) throw error;
+  }, []);
+
   return {
     loading,
     fetchSlips,
     fetchSlipById,
     createSlip,
     updateSlip,
+    deleteSlip,
     fetchMonthSummary,
     fetchAnalyticsData,
     fetchLossLimit,

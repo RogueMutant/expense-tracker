@@ -21,7 +21,7 @@
   --pending-text: #d8c388;
   --accent: #e8b84b;
   --font-ui: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-mono: "IBM Plex Mono", "Consolas", "SF Mono", "Noto Sans Mono", monospace;
   --radius: 8px;
 }
 
@@ -431,6 +431,32 @@ a {
   flex-direction: column;
   align-items: flex-end;
   gap: 3px;
+}
+
+.slip-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.slip-delete-btn {
+  background: none;
+  border: none;
+  color: var(--muted-text-secondary);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.slip-row:hover .slip-delete-btn {
+  opacity: 1;
+}
+
+.slip-delete-btn:hover {
+  color: var(--loss-text);
 }
 
 /* Empty state */

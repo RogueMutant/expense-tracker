@@ -6,10 +6,11 @@ import SlipForm from "../components/SlipForm";
 export default function EditSlipPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { fetchSlipById, updateSlip, isLocked } = useSlips();
+  const { fetchSlipById, updateSlip, deleteSlip, isLocked } = useSlips();
   const [slip, setSlip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchSlipById(id)
@@ -42,6 +43,18 @@ export default function EditSlipPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this slip? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      await deleteSlip(id);
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+      setDeleting(false);
+    }
+  };
+
   if (loading) return <div className="loader" style={{ paddingTop: 60 }}>Loading{"\u2026"}</div>;
   if (error) return <div className="card" style={{ borderColor: "var(--loss-bg)", color: "var(--loss-text)" }}>{error}</div>;
 
@@ -56,6 +69,16 @@ export default function EditSlipPage() {
         onCancel={() => navigate("/")}
         locked={locked}
       />
+      {!locked && (
+        <button
+          className="btn btn-danger btn-sm"
+          onClick={handleDelete}
+          disabled={deleting}
+          style={{ marginTop: 8 }}
+        >
+          {deleting ? "Deleting\u2026" : "Delete slip"}
+        </button>
+      )}
     </div>
   );
 }

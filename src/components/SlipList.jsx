@@ -7,7 +7,7 @@ function formatNaira(n) {
   return `${prefix}\u20A6${Math.abs(num).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
-export default function SlipList({ slips, isLocked }) {
+export default function SlipList({ slips, isLocked, onDelete }) {
   const navigate = useNavigate();
 
   if (!slips || slips.length === 0) {
@@ -17,6 +17,12 @@ export default function SlipList({ slips, isLocked }) {
       </div>
     );
   }
+
+  const handleDelete = (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("Delete this slip?")) return;
+    onDelete(id);
+  };
 
   return (
     <div className="slip-list">
@@ -41,9 +47,20 @@ export default function SlipList({ slips, isLocked }) {
             </div>
             <div className="slip-right">
               <div className="slip-stake">{formatNaira(slip.stake)}</div>
-              <div className={`status-badge ${slip.status}`}>
-                {slip.status.charAt(0).toUpperCase() + slip.status.slice(1)}
-                {locked && " [locked]"}
+              <div className="slip-actions">
+                <div className={`status-badge ${slip.status}`}>
+                  {slip.status.charAt(0).toUpperCase() + slip.status.slice(1)}
+                  {locked && " [locked]"}
+                </div>
+                {!locked && onDelete && (
+                  <button
+                    className="slip-delete-btn"
+                    onClick={(e) => handleDelete(e, slip.id)}
+                    title="Delete slip"
+                  >
+                    &times;
+                  </button>
+                )}
               </div>
             </div>
             <div className={`slip-net ${net > 0 ? "net-positive" : net < 0 ? "net-negative" : "net-neutral"}`}>

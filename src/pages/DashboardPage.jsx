@@ -15,7 +15,7 @@ export default function DashboardPage() {
   const [stakeMin, setStakeMin] = useState("");
   const [stakeMax, setStakeMax] = useState("");
   const [loadError, setLoadError] = useState("");
-  const { fetchSlips, fetchMonthSummary, fetchLossLimit, fetchCurrentMonthLoss, isLocked } = useSlips();
+  const { fetchSlips, fetchMonthSummary, fetchLossLimit, fetchCurrentMonthLoss, deleteSlip, isLocked } = useSlips();
 
   const load = useCallback(async () => {
     setLoadError("");
@@ -56,6 +56,15 @@ export default function DashboardPage() {
     if (stakeMax !== "" && st > Number(stakeMax)) return false;
     return true;
   });
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteSlip(id);
+      setSlips((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      setLoadError("Failed to delete slip.");
+    }
+  };
 
   return (
     <div>
@@ -103,7 +112,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      <SlipList slips={filtered} isLocked={isLocked} />
+      <SlipList slips={filtered} isLocked={isLocked} onDelete={handleDelete} />
     </div>
   );
 }
