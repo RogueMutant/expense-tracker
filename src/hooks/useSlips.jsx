@@ -16,6 +16,28 @@ function toDateInput(d) {
   return typeof d === "string" ? d : format(d, "yyyy-MM-dd");
 }
 
+function isMissingTable(error) {
+  if (!error) return false;
+  const msg = (error.message || "").toLowerCase();
+  const code = error.code || "";
+  return (
+    code === "PGRST301" ||
+    code === "42P01" ||
+    msg.includes("does not exist") ||
+    msg.includes("relation") ||
+    msg.includes("not found")
+  );
+}
+
+async function query(table, fn) {
+  try {
+    return await fn(supabase.from(table));
+  } catch (err) {
+    if (isMissingTable(err)) return null;
+    throw err;
+  }
+}
+
 export function useSlips() {
   const [loading, setLoading] = useState(false);
 
@@ -23,44 +45,56 @@ export function useSlips() {
     setLoading(true);
     const start = toDateInput(new Date(year, month - 1, 1));
     const end = toDateInput(new Date(year, month, 0));
-    const { data, error } = await supabase
-      .from("slips")
-      .select("*")
-      .gte("date", start)
-      .lte("date", end)
-      .order("date", { ascending: false })
-      .order("created_at", { ascending: false });
+    const result = await query("slips", (q) =>
+      q
+        .select("*")
+        .gte("date", start)
+        .lte("date", end)
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data || [];
+        })
+    );
     setLoading(false);
-    if (error) throw error;
-    return data || [];
+    return result || [];
   }, []);
 
   const fetchSlipById = useCallback(async (id) => {
-    const { data, error } = await supabase
-      .from("slips")
-      .select("*")
-      .eq("id", id)
-      .single();
-    if (error) throw error;
-    return data;
+    const result = await query("slips", (q) =>
+      q
+        .select("*")
+        .eq("id", id)
+        .single()
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data;
+        })
+    );
+    return result;
   }, []);
 
   const createSlip = useCallback(async (slip) => {
-    const { data, error } = await supabase
-      .from("slips")
-      .insert({
-        date: slip.date,
-        stake: slip.stake,
-        games_count: slip.games_count,
-        bookmaker: slip.bookmaker,
-        notes: slip.notes || null,
-        status: slip.status || "pending",
-        payout: slip.status === "lost" ? 0 : slip.payout || null,
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
+    const result = await query("slips", (q) =>
+      q
+        .insert({
+          date: slip.date,
+          stake: slip.stake,
+          games_count: slip.games_count,
+          bookmaker: slip.bookmaker,
+          notes: slip.notes || null,
+          status: slip.status || "pending",
+          payout: slip.status === "lost" ? 0 : slip.payout || null,
+        })
+        .select()
+        .single()
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data;
+        })
+    );
+    return result;
   }, []);
 
   const updateSlip = useCallback(async (id, updates) => {
@@ -68,26 +102,34 @@ export function useSlips() {
     if (updates.status === "lost") {
       payload.payout = 0;
     }
-    const { data, error } = await supabase
-      .from("slips")
-      .update(payload)
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
+    const result = await query("slips", (q) =>
+      q
+        .update(payload)
+        .eq("id", id)
+        .select()
+        .single()
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data;
+        })
+    );
+    return result;
   }, []);
 
   const fetchMonthSummary = useCallback(async (year, month) => {
     const start = toDateInput(new Date(year, month - 1, 1));
     const end = toDateInput(new Date(year, month, 0));
-    const { data, error } = await supabase
-      .from("slips")
-      .select("*")
-      .gte("date", start)
-      .lte("date", end);
-    if (error) throw error;
-    const slips = data || [];
+    const result = await query("slips", (q) =>
+      q
+        .select("*")
+        .gte("date", start)
+        .lte("date", end)
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data || [];
+        })
+    );
+    const slips = result || [];
     const resolved = slips.filter((s) => s.status !== "pending");
     const totalStaked = slips.reduce((sum, s) => sum + Number(s.stake), 0);
     const totalReturned = resolved.reduce((sum, s) => sum + Number(s.payout || 0), 0);
@@ -98,13 +140,17 @@ export function useSlips() {
   }, []);
 
   const fetchAllResolved = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("slips")
-      .select("*")
-      .neq("status", "pending")
-      .order("date", { ascending: true });
-    if (error) throw error;
-    return data || [];
+    const result = await query("slips", (q) =>
+      q
+        .select("*")
+        .neq("status", "pending")
+        .order("date", { ascending: true })
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data || [];
+        })
+    );
+    return result || [];
   }, []);
 
   const fetchAnalyticsData = useCallback(async () => {
@@ -178,13 +224,17 @@ export function useSlips() {
   const fetchLossLimit = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("monthly_loss_limit")
-      .eq("id", user.id)
-      .single();
-    if (error && error.code !== "PGRST116") throw error;
-    return data?.monthly_loss_limit ?? null;
+    const result = await query("profiles", (q) =>
+      q
+        .select("monthly_loss_limit")
+        .eq("id", user.id)
+        .single()
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data;
+        })
+    );
+    return result?.monthly_loss_limit ?? null;
   }, []);
 
   const setLossLimit = useCallback(async (limit) => {
@@ -195,22 +245,26 @@ export function useSlips() {
       { id: user.id, monthly_loss_limit: val },
       { onConflict: "id" }
     );
-    if (error) throw error;
+    if (error && !isMissingTable(error)) throw error;
   }, []);
 
   const fetchCurrentMonthLoss = useCallback(async () => {
     const now = new Date();
     const start = toDateInput(startOfMonth(now));
     const end = toDateInput(endOfMonth(now));
-    const { data, error } = await supabase
-      .from("slips")
-      .select("stake, payout, status")
-      .neq("status", "pending")
-      .gte("date", start)
-      .lte("date", end);
-    if (error) throw error;
-    const net = (data || []).reduce((sum, s) => sum + Number(s.payout || 0) - Number(s.stake), 0);
-    return net;
+    const result = await query("slips", (q) =>
+      q
+        .select("stake, payout, status")
+        .neq("status", "pending")
+        .gte("date", start)
+        .lte("date", end)
+        .then((r) => {
+          if (r.error) throw r.error;
+          return r.data || [];
+        })
+    );
+    const slips = result || [];
+    return slips.reduce((sum, s) => sum + Number(s.payout || 0) - Number(s.stake), 0);
   }, []);
 
   const isLocked = useCallback((slip) => {
