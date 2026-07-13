@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 const STATUSES = ["pending", "won", "lost"];
+const QUICK_STAKES = [100, 200, 500, 1000, 5000, 10000];
 
 function formatNaira(amount) {
   if (amount == null || amount === "") return "";
@@ -165,6 +166,19 @@ export default function SlipForm({ initialData, onSave, onCancel, locked }) {
 
             <div className="form-group">
               <label className="form-label">Stake (&#8358;)</label>
+              <div className="quick-stakes">
+                {QUICK_STAKES.map((amt) => (
+                  <button
+                    key={amt}
+                    type="button"
+                    className={`quick-stake-btn ${Number(stake) === amt ? "active" : ""}`}
+                    onClick={() => !locked && setStake(String(amt))}
+                    disabled={locked}
+                  >
+                    &#8358;{amt.toLocaleString()}
+                  </button>
+                ))}
+              </div>
               <input
                 className="form-input mono"
                 type="number"

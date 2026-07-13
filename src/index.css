@@ -657,6 +657,54 @@ a {
   margin-bottom: 12px;
 }
 
+/* Quick stake selector */
+.quick-stakes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.quick-stake-btn {
+  padding: 6px 14px;
+  background: var(--pitch-green);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  color: var(--muted-text);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.quick-stake-btn:hover {
+  border-color: var(--accent);
+  color: var(--chalk-white);
+}
+
+.quick-stake-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--pitch-green);
+  font-weight: 600;
+}
+
+/* Stake filter on dashboard */
+.stake-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stake-filter .form-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+}
+
 /* ─── Mobile responsive tweaks ─── */
 @media (max-width: 480px) {
   .app-layout {
@@ -741,5 +789,14 @@ a {
 
   .chart-card h3 {
     font-size: 0.8rem;
+  }
+
+  .quick-stakes {
+    gap: 4px;
+  }
+
+  .quick-stake-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
   }
 }

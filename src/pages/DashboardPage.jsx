@@ -12,23 +12,26 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState(null);
   const [currentMonthNet, setCurrentMonthNet] = useState(null);
   const [limit, setLimit] = useState(null);
-  const { loading, fetchSlips, fetchMonthSummary, fetchLossLimit, fetchCurrentMonthLoss, isLocked } = useSlips();
+  const [stakeMin, setStakeMin] = useState("");
+  const [stakeMax, setStakeMax] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const { fetchSlips, fetchMonthSummary, fetchLossLimit, fetchCurrentMonthLoss, isLocked } = useSlips();
 
   const load = useCallback(async () => {
-    try {
-      const [s, summ, lossNet, lim] = await Promise.all([
-        fetchSlips(year, month),
-        fetchMonthSummary(year, month),
-        fetchCurrentMonthLoss(),
-        fetchLossLimit(),
-      ]);
-      setSlips(s);
-      setSummary(summ);
-      setCurrentMonthNet(lossNet);
-      setLimit(lim);
-    } catch (err) {
-      console.error("Failed to load dashboard:", err);
+    setLoadError("");
+    const [s, summ, lossNet, lim] = await Promise.all([
+      fetchSlips(year, month).catch(() => null),
+      fetchMonthSummary(year, month).catch(() => null),
+      fetchCurrentMonthLoss().catch(() => null),
+      fetchLossLimit().catch(() => null),
+    ]);
+    if (s === null && summ === null) {
+      setLoadError("Could not load slip data. Check your database connection.");
     }
+    setSlips(s ?? []);
+    setSummary(summ);
+    setCurrentMonthNet(lossNet);
+    setLimit(lim);
   }, [year, month, fetchSlips, fetchMonthSummary, fetchCurrentMonthLoss, fetchLossLimit]);
 
   useEffect(() => { load(); }, [load]);
@@ -47,11 +50,24 @@ export default function DashboardPage() {
 
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
 
+  const filtered = slips.filter((s) => {
+    const st = Number(s.stake);
+    if (stakeMin !== "" && st < Number(stakeMin)) return false;
+    if (stakeMax !== "" && st > Number(stakeMax)) return false;
+    return true;
+  });
+
   return (
     <div>
       <div className="dashboard-header">
         <h1>Log</h1>
       </div>
+
+      {loadError && (
+        <div className="card" style={{ borderColor: "var(--loss-bg)", color: "var(--loss-text)", marginBottom: 12, fontSize: "0.85rem" }}>
+          {loadError}
+        </div>
+      )}
 
       {isCurrentMonth && (
         <LossLimitBanner currentMonthNet={currentMonthNet} limit={limit} />
@@ -67,11 +83,27 @@ export default function DashboardPage() {
 
       <MonthSummary summary={summary} />
 
-      {loading ? (
-        <div className="loader">Loading{"\u2026"}</div>
-      ) : (
-        <SlipList slips={slips} isLocked={isLocked} />
-      )}
+      <div className="stake-filter">
+        <input
+          className="form-input mono"
+          type="number"
+          min="0"
+          placeholder="Stake min"
+          value={stakeMin}
+          onChange={(e) => setStakeMin(e.target.value)}
+        />
+        <span style={{ color: "var(--muted-text-secondary)" }}>to</span>
+        <input
+          className="form-input mono"
+          type="number"
+          min="0"
+          placeholder="Stake max"
+          value={stakeMax}
+          onChange={(e) => setStakeMax(e.target.value)}
+        />
+      </div>
+
+      <SlipList slips={filtered} isLocked={isLocked} />
     </div>
   );
 }

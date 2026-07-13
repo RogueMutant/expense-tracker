@@ -21,13 +21,18 @@ function nairaTick(value) {
 
 export function MonthlyBarChart({ data }) {
   const minWidth = Math.max(data.length * 50, 280);
+  const maxNet = Math.max(...data.map((d) => d.net), 0);
+  const minNet = Math.min(...data.map((d) => d.net), 0);
+  const range = maxNet - minNet || 1;
+  const yPad = range * 0.15;
+
   return (
     <div className="chart-card">
       <h3>Monthly net</h3>
       <div className="chart-wrapper">
         <div className="chart-inner" style={{ minWidth }}>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={data} margin={{ top: 8, right: 4, bottom: 4, left: -12 }}>
+            <BarChart data={data} margin={{ top: 8, right: 4, bottom: 20, left: -12 }}>
               <XAxis
                 dataKey="month"
                 tick={{ fill: "#8fa898", fontSize: 10, fontFamily: "Inter" }}
@@ -44,6 +49,7 @@ export function MonthlyBarChart({ data }) {
                 axisLine={false}
                 tickLine={false}
                 width={48}
+                domain={[minNet - yPad, maxNet + yPad]}
               />
               <Tooltip
                 contentStyle={{
